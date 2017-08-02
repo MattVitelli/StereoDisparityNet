@@ -1,0 +1,6 @@
+model_checkpoint_path: "last_model.tfmodel"
+all_model_checkpoint_paths: "disparity_80700.tfmodel"
+all_model_checkpoint_paths: "best_model.tfmodel"
+all_model_checkpoint_paths: "disparity_90800.tfmodel"
+all_model_checkpoint_paths: "disparity_100900.tfmodel"
+all_model_checkpoint_paths: "last_model.tfmodel"
