@@ -25,7 +25,7 @@ force_save_number = 10000
 
 # training settings
 num_iterations = 150000
-iterations_per_epoch = 100
+iterations_per_epoch = 10
 num_epochs = math.ceil(float(num_iterations) / float(iterations_per_epoch))
 num_eval_images_per_epoch = 10
 
@@ -43,15 +43,14 @@ channels = 3
 left_input = tf.placeholder(tf.float32, shape=[1, channels, height, width])
 right_input = tf.placeholder(tf.float32, shape=[1, channels, height, width])
 true_disparity = tf.placeholder(tf.float32, shape=[1, height, width])
-isTraining = tf.placeholder(tf.bool, shape=[])
+isTraining = tf.placeholder(tf.bool)
 
 predicted_disparity = model_new.make_disparity_model(left_input, right_input, num_features, num_disparities, isTraining)
 
 cost = tf.losses.absolute_difference(labels=true_disparity, predictions=predicted_disparity)
 #supposedly these two commands should make BN work at test time
 extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-with tf.control_dependencies(extra_update_ops):
-	optimizer = tf.train.RMSPropOptimizer(learning_rate=learning_rate).minimize(cost)
+optimizer = tf.train.RMSPropOptimizer(learning_rate=learning_rate).minimize(cost)
 
 # 'Saver' op to save and restore all the variables
 saver = tf.train.Saver()
@@ -92,7 +91,7 @@ with tf.Session() as sess:
 			right_img = np.reshape(aIRShuffled, [1, aIRShuffled.shape[0], aIRShuffled.shape[1], aIRShuffled.shape[2]])
 			disparity_gt = np.reshape(aDL, [1, aDL.shape[0], aDL.shape[1]])
 			# Run optimization op (backprop) and cost op (to get loss value)
-			_, c, prediction = sess.run([optimizer, cost, predicted_disparity], feed_dict={left_input: left_img,
+			_, c, prediction, _ = sess.run([optimizer, cost, predicted_disparity, extra_update_ops], feed_dict={left_input: left_img,
 														right_input: right_img,
 														true_disparity: disparity_gt,
 														isTraining: True})
